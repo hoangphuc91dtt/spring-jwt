@@ -45,30 +45,38 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // Kiểm tra nếu username không null và chưa có đối tượng xác thực trong SecurityContext
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            // Lấy thông tin người dùng từ dịch vụ dựa trên username
 
             if (jwtService.validateToken(token, userDetails)) {
+                // Kiểm tra xem token có hợp lệ với thông tin người dùng hay không
+
                 String role = jwtService.extractRole(token);
-                System.out.println("Extracted Role: " + role); // Log role
+                // Trích xuất vai trò (role) của người dùng từ token
+
+                System.out.println("Extracted Role: " + role);
+                // Log ra vai trò để kiểm tra trong quá trình phát triển
 
                 List<GrantedAuthority> authorities = new ArrayList<>(userDetails.getAuthorities());
+                // Lấy danh sách quyền hiện tại của người dùng từ UserDetails
+                // Tạo danh sách quyền mới để có thể thêm các quyền bổ sung
 
-                // Chỉ thêm role nếu nó hợp lệ (không null, không rỗng)
                 if (role != null && !role.trim().isEmpty()) {
-                    if (!role.startsWith("ROLE_")) {
-                        role = "ROLE_" + role; // Thêm tiền tố "ROLE_" nếu thiếu
-                    }
-                    authorities.add(new SimpleGrantedAuthority(role));
-                }
+                    // Kiểm tra vai trò có hợp lệ (không null    hoặc rỗng)
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, authorities);
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    if (!role.startsWith("ROLE_")) {
+                        // Kiểm tra nếu vai trò chưa có tiền tố "ROLE_", thêm vào
+                        role = "ROLE_" + role;
+                    }
+
             }
         }
 
         filterChain.doFilter(request, response);
+    // Tiếp tục chuỗi filter để các filter hoặc xử lý tiếp theo có thể được thực thi
+
+    }
     }
 }
 

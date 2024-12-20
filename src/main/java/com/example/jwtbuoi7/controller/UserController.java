@@ -3,6 +3,7 @@ package com.example.jwtbuoi7.controller;
 import com.example.jwtbuoi7.entity.AuthRequest;
 import com.example.jwtbuoi7.entity.UserInfo;
 import com.example.jwtbuoi7.service.JwtService;
+import com.example.jwtbuoi7.service.UserInfoDetails;
 import com.example.jwtbuoi7.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,14 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+
+    // Endpoint to get user details by email
+    @GetMapping("/getUserDetails")
+    public UserInfoDetails getUserDetails(@RequestParam String email) {
+        // Call the service to get UserDetails by email
+        UserInfoDetails userInfoDetails = (UserInfoDetails) service.loadUserByUsername(email);
+        return userInfoDetails; // Return the UserInfoDetails
+    }
     @GetMapping("/welcome")
     public String welcome() {
         return "Welcome this endpoint is not secure";
